@@ -26,7 +26,7 @@ static void help()
 		"    show: list all namespace\n"
 		"    get key\n"
 		"    set key value\n"
-		"    list [number]\n"
+		"    ls [number]\n"
 		"    info\n"
 		"    quit\n" 
 		"    help\n"<< endl;;
@@ -36,7 +36,7 @@ static string trimm(string s)
 	trim(s);
 	return s;
 }
-int maint()
+int main()
 {
 	info();
 	help();
@@ -103,18 +103,13 @@ int maint()
 				<< "\nmax value length " << sm_value_len(handle) << "\n" << endl;
 		}
 
-		else if (starts_with(input, "list"))
+		else if (starts_with(input, "ls"))
 		{
-			size_t n;
-			if (trimm(input.substr(4)).empty())
-				n = 20;
-			else
-				n = stoi(trimm(input.substr(4)));
-
+			size_t n= trimm(input.substr(2)).empty()?20: stoi(trimm(input.substr(2)));
 			if (n > sm_size(handle))
 				n = sm_size(handle);
 
-			auto kvi_size = sm_key_len(handle) + sm_value_len(handle) + sizeof size_t;
+			auto kvi_size = sm_key_len(handle) + sm_value_len(handle) + 2*sizeof size_t;
 			std::random_device rd;
 			std::default_random_engine engine(rd());
 			std::uniform_int_distribution<> distribution(0, sm_size(handle) - n);
@@ -138,11 +133,11 @@ int maint()
 			string key = trimm(input.substr(3));
 			char value[4096];
 			size_t len = 4096;
-			int error = sm_get(handle, key.c_str(), value, len);
-			if (error != 0)
+			int error = sm_get_str(handle, key.c_str(), value, len);
+			if (error)
 				cout << "sm_get error: " << error << endl;
 			else
-				cout << value << endl;
+				cout << len<<endl<<value << endl;
 		}
 
 		else if (starts_with(input, "set"))
@@ -156,9 +151,17 @@ int maint()
 			}
 			string key = kv.substr(0, finder);
 			string value = trimm(kv.substr(finder));
-			int error = sm_set(handle, key.c_str(), value.c_str());
-			if (error != 0)
+			int error = sm_set_str(handle, key.c_str(), value.c_str());
+			if (error)
 				cout << "sm_set error: " << error << endl;
+		}
+
+		else if (starts_with(input, "rm"))
+		{
+			string key = trimm(input.substr(2));
+			int error = sm_remove(handle, key.c_str());
+			if(error)
+				cout << "sm_remove error: " << error << endl;
 		}
 
 		else

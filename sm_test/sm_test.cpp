@@ -8,23 +8,24 @@
 #include<mutex>
 using namespace std;
 using namespace boost::interprocess;
-static named_mutex muu(open_or_create, "log");
-const size_t siz =1000*1000;
+static mutex mu;
+const size_t siz =100*1;
 int kk=0;
-//const char* name = "ae";
+size_t key_size = 32;
+size_t value_size = 64;
+double factor = 0.75;
+vector<string> v;
+
 void sg(const char* name)
 {
-	vector<string> v;
-	for (size_t i = 0; i < siz; ++i)
-		v.push_back(to_string(i));
-	SM_HANDLE handle = sm_server_init(name, 128, 128, siz);
+	SM_HANDLE handle = sm_server_init(name, key_size, value_size, siz, factor);
 	if (!handle)
 		return;
 	boost::progress_timer t;
 	for (int i = 0; i < 1; ++i)
 		for (auto cc : v)
-			sm_set(handle, cc.c_str(), cc.c_str());
-	lock_guard<named_mutex> lg(muu);
+			sm_set_str(handle, cc.c_str(), cc.c_str());
+	lock_guard<mutex> lg(mu);
 	cout << endl<<"server" << endl;
 	cout << "avrage depth " << sm_avg_depth(handle) << endl;
 	cout << "sm_size " << sm_size(handle) << endl;
@@ -34,10 +35,7 @@ void sg(const char* name)
 
 void g(const char* name)
 {
-	vector<string> v;
-	for (int i = 0; i < siz; ++i)
-		v.push_back(to_string(i));
-	SM_HANDLE handle = sm_server_init(name, 64, 64, siz);
+	SM_HANDLE handle = sm_server_init(name, key_size, value_size, siz, factor);
 	if (!handle)
 		return;
 	boost::progress_timer t;
@@ -48,11 +46,11 @@ void g(const char* name)
 		{
 			size_t len = 128;
 			char out[128];
-			if (sm_get(handle, cc.c_str(), out, len) == 0)
+			if (sm_get_str(handle, cc.c_str(), out, len) == 0)
 			if (cc != out)
 				++k;
 		}
-	lock_guard<named_mutex> lg(muu);
+	lock_guard<mutex> lg(mu);
 	cout <<endl<< "client" << endl;
 	cout << "error number: " << k << endl;
 	cout << "sm_avr_depth " << sm_avg_depth(handle) << endl;
@@ -64,22 +62,37 @@ void g(const char* name)
 
 }
 
+void del(const char* name)
+{
+	SM_HANDLE handle = sm_server_init(name, key_size, value_size, siz, factor);
+	if (!handle)
+		return;
+	boost::progress_timer t;
+	for (int i = 0; i < 1; ++i)
+		for (auto cc : v)
+		{
+			sm_remove(handle, cc.c_str());
+		}
+}
 void x(const string& s)
 {
 	cout << s << endl;
 }
 int main(int argc, char* argv[])
 {
+	for(size_t i = 0; i < siz; ++i)
+		v.push_back(to_string(i));
+	cout << "ya" << endl;
 	vector<thread> v;
-	const char *ss[] = {"aa","ab","ac","ad","ae","af","ag","ah"};
-	const char *xa = "gg";
+	const char *ss[] = {"ya","ih","ik","ad","ee","af","ag","ah"};
+	const char *xa = "in";
 	if (argc > 1)
 		xa = argv[1];
-	int n = 3;
+	int n = 1;
 	for (int i = 0; i < n; ++i)
 		v.emplace_back(bind(sg, ss[i]));
 	//for (int i = 0; i < n; ++i)
-		//v.emplace_back(bind(g, xa));
+		//v.emplace_back(bind(del, ss[i]));
 	for (int i = 0; i < v.size(); ++i)
 		v[i].join();
 	return 0;

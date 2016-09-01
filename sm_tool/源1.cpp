@@ -49,7 +49,7 @@ void gg()
 	}
 }
 
-int main()
+int main1()
 {
 	gg();
 }

@@ -24,7 +24,7 @@ static void g()
 		{
 			size_t len = 128;
 			char out[128];
-			sm_get(handle, cc.c_str(), out, len);
+			sm_get_str(handle, cc.c_str(), out, len);
 			if (cc != out)
 				++k;
 		}
