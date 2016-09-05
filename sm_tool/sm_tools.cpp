@@ -137,7 +137,7 @@ int main()
 			if (error)
 				cout << "sm_get error: " << error << endl;
 			else
-				cout << len<<endl<<value << endl;
+				cout << value << endl;
 		}
 
 		else if (starts_with(input, "set"))

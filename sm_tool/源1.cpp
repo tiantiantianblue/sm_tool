@@ -52,4 +52,5 @@ void gg()
 int main1()
 {
 	gg();
+	return 0;
 }
