@@ -109,7 +109,7 @@ int main()
 			if (n > sm_size(handle))
 				n = sm_size(handle);
 
-			auto kvi_size = sm_key_len(handle) + sm_value_len(handle) + 2*sizeof size_t;
+			auto kvi_size = sm_key_len(handle) + sm_value_len(handle) + 2*sizeof(size_t);
 			std::random_device rd;
 			std::default_random_engine engine(rd());
 			std::uniform_int_distribution<> distribution(0, sm_size(handle) - n);

@@ -1,0 +1,10 @@
+CXX = g++
+CC = g++
+LDFLAGS = -L. -pthread -m32
+LDFLAGS += -static-libstdc++ -static-libgcc
+LDLIBS += -lsm_hash_map
+LDLIBS += -lrt
+CPPFLAGS = -I/home/tian-qing/source_code/boost_1_61_0 -std=c++11 -m32
+sm_tools:
+clean:
+	rm *.o sm_tools
