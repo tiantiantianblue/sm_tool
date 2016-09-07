@@ -2,21 +2,21 @@
 #include<string>
 #include<iostream>
 #include<vector>
-#include<boost/progress.hpp>
-#include <boost/interprocess/sync/named_mutex.hpp>
 #include<thread>
 #include<mutex>
+
+#include<boost/progress.hpp>
 using namespace std;
-using namespace boost::interprocess;
 static mutex mu;
-const size_t siz = 1000*1000;
+const unsigned int siz = 1000*1000;
 int kk = 0;
-size_t key_size = 8;
-size_t value_size = 8;
+unsigned int key_size = 8;
+unsigned int value_size = 8;
 double factor = 0.75;
 vector<string> v;
 int nn = 5;
 SM_HANDLE handle;
+
 void s(SM_HANDLE handle)
 {
 	if (!handle)
@@ -44,7 +44,7 @@ void g(SM_HANDLE handle)
 	for (int i = 0; i < nn; ++i)
 		for (auto cc : v)
 		{
-			size_t len = 128;
+			unsigned int len = 128;
 			char out[128];
 			if (sm_get_str(handle, cc.c_str(), out, len) == 0)
 				if (cc != out)
@@ -86,14 +86,14 @@ void del(SM_HANDLE handle)
 int main(int argc, char* argv[])
 {
 
-	for (size_t i = 0; i < siz; ++i)
+	for (unsigned int i = 0; i < siz; ++i)
 		v.push_back(to_string(i));
 	vector<thread> v;
-	const char *ss[] = { "ga","gb","gc","fv","ee","af","ag","ah" };
+	const char *ss[] = { "ab","bb","gc","fv","ee","af","ag","ah" };
 	const char *xa = "in";
 	if (argc > 1)
 		xa = argv[1];
-	int n = 2;
+	int n = 1;
 
 	for (int i = 0; i < n; ++i)
 	{

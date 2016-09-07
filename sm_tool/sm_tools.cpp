@@ -3,7 +3,8 @@
 #include<iostream>
 #include<vector>
 #include<random>
-#include<boost/progress.hpp>
+#include<regex>
+
 #include<boost/algorithm/string.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
@@ -22,10 +23,11 @@ static void info()
 static void help()
 {
 	cout << "usage:\n"
-		"    use [namespace]\n"
+		"    use <namespace> <>\n"
+		"	 create "
 		"    show: list all namespace\n"
-		"    get key\n"
-		"    set key value\n"
+		"    get <key>\n"
+		"    set <key> <value>\n"
 		"    ls [number]\n"
 		"    info\n"
 		"    quit\n" 
@@ -35,6 +37,11 @@ static string trimm(string s)
 {
 	trim(s);
 	return s;
+}
+static vector<std::string> split(const string& input, const string& sregex) {
+	regex re(sregex);
+	sregex_token_iterator first(input.begin(), input.end(), re, -1), last;
+	return vector<std::string>(first, last);
 }
 int main()
 {
@@ -60,6 +67,32 @@ int main()
 				cout << "no namespace exsits" << endl;
 			}
 
+			continue;
+		}
+
+		if (starts_with(input, "create"))
+		{
+			input = trimm(input.substr(6));
+			auto para = split(input, "\\s+");
+			if (para.size() < 4 || para.size() > 5)
+			{
+				cout << "error: create parameters number should be 4 or 5";
+				continue;
+			}
+
+			try
+			{
+				SM_HANDLE ha;
+				if (para.size() == 4)
+					ha = sm_server_init(para[0].c_str(), stoi(para[1]), stoi(para[2]), stoi(para[3]));
+				else
+					ha = sm_server_init(para[0].c_str(), stoi(para[1]), stoi(para[2]), stoi(para[3]));
+				sm_release(ha);
+			}
+			catch (const exception&)
+			{
+				cout << "invalid parameters" << endl;
+			}
 			continue;
 		}
 
@@ -105,18 +138,18 @@ int main()
 
 		else if (starts_with(input, "ls"))
 		{
-			size_t n= trimm(input.substr(2)).empty()?20: stoi(trimm(input.substr(2)));
+			unsigned int n= trimm(input.substr(2)).empty()?20: stoi(trimm(input.substr(2)));
 			if (n > sm_size(handle))
 				n = sm_size(handle);
 
-			auto kvi_size = sm_key_len(handle) + sm_value_len(handle) + 2*sizeof(size_t);
+			auto kvi_size = sm_key_len(handle) + sm_value_len(handle) + 2*sizeof(unsigned int);
 			std::random_device rd;
 			std::default_random_engine engine(rd());
 			std::uniform_int_distribution<> distribution(0, sm_size(handle) - n);
 			auto p = sm_bucket_head(handle) + distribution(engine)*kvi_size;
 			printf("%-32s%s\n", "key", "value");
 			printf("---------------------------------------------\n");
-			for (size_t i = 0; i < n;)
+			for (unsigned int i = 0; i < n;)
 			{
 				if (*p)
 				{
@@ -132,7 +165,7 @@ int main()
 		{
 			string key = trimm(input.substr(3));
 			char value[4096];
-			size_t len = 4096;
+			unsigned int len = 4096;
 			int error = sm_get_str(handle, key.c_str(), value, len);
 			if (error)
 				cout << "sm_get error: " << error << endl;

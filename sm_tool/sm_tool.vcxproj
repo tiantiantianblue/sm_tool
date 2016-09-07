@@ -130,8 +130,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\source_code\boost_1_61_0\stage\lib;C:\source_code\libuv-v1.9.1\Release\lib;C:\Users\tianh\Documents\Visual Studio 2015\Projects\sm_hash_map_dll\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libuv.lib;advapi32.lib;iphlpapi.lib;sm_hash_map_dll.lib;psapi.lib;shell32.lib;user32.lib;userenv.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\tianh\Documents\Visual Studio 2015\Projects\sm_hash_map_dll\Release;C:\source_code\boost_1_61_0\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>advapi32.lib;iphlpapi.lib;sm_hash_map_dll.lib;psapi.lib;shell32.lib;user32.lib;userenv.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
