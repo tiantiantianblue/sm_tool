@@ -4,20 +4,19 @@
 #include<vector>
 #include<thread>
 #include<mutex>
-
 #include<boost/progress.hpp>
 using namespace std;
+
 static mutex mu;
-const unsigned int siz = 1000*1000;
-int kk = 0;
+const unsigned int siz = 1000 * 1000;
 unsigned int key_size = 8;
 unsigned int value_size = 8;
 double factor = 0.75;
 vector<string> v;
-int nn = 5;
+int nn = 10;
 SM_HANDLE handle;
 
-void s(SM_HANDLE handle)
+void wr(SM_HANDLE handle)
 {
 	if (!handle)
 		return;
@@ -26,14 +25,10 @@ void s(SM_HANDLE handle)
 		for (auto cc : v)
 			sm_set_str(handle, cc.c_str(), cc.c_str());
 	lock_guard<mutex> lg(mu);
-	cout << endl<<"server" << endl;
-	/*cout << "avrage depth " << sm_avg_depth(handle) << endl;
-	cout << "sm_size " << sm_size(handle) << endl;
-	cout << "sm_memory_use " << sm_memory_use(handle) << endl;
-	cout << "sm_total_memory " << sm_total_memory(handle) << endl;*/
+	cout << endl << "server" << endl;
 }
 
-void g(SM_HANDLE handle)
+void rd(SM_HANDLE handle)
 {
 	if (!handle)
 		return;
@@ -53,7 +48,7 @@ void g(SM_HANDLE handle)
 					if (++count < 9)
 					{
 						lock_guard<mutex> lg(mu);
-						cout << cc << " "<<out<<endl;
+						cout << cc << " " << out << endl;
 					}
 				}
 		}
@@ -89,20 +84,13 @@ int main(int argc, char* argv[])
 	for (unsigned int i = 0; i < siz; ++i)
 		v.push_back(to_string(i));
 	vector<thread> v;
-	const char *ss[] = { "ab","bb","gc","fv","ee","af","ag","ah" };
-	const char *xa = "in";
+	const char *xa = "bb";
 	if (argc > 1)
 		xa = argv[1];
-	int n = 1;
-
-	for (int i = 0; i < n; ++i)
-	{
-		handle = sm_server_init(ss[i], key_size, value_size, siz, factor);
-		v.emplace_back(bind(s, handle));
-		//this_thread::sleep_for(100ms);
-		v.emplace_back(bind(del, handle));
-		v.emplace_back(bind(g, handle));
-	}
+	handle = sm_server_init(xa, key_size, value_size, siz, factor);
+	v.emplace_back(bind(wr, handle));
+	v.emplace_back(bind(del, handle));
+	v.emplace_back(bind(rd, handle));
 	for (int i = 0; i < v.size(); ++i)
 		v[i].join();
 	return 0;
