@@ -23,8 +23,8 @@ static void info()
 static void help()
 {
 	cout << "usage:\n"
-		"    use <namespace> <>\n"
-		"	 create "
+		"    use <namespace> \n"
+		"	 create <namespace> <key_size> <value_size> <amount> [load_factor] \n"
 		"    show: list all namespace\n"
 		"    get <key>\n"
 		"    set <key> <value>\n"
@@ -86,7 +86,7 @@ int main()
 				if (para.size() == 4)
 					ha = sm_server_init(para[0].c_str(), stoi(para[1]), stoi(para[2]), stoi(para[3]));
 				else
-					ha = sm_server_init(para[0].c_str(), stoi(para[1]), stoi(para[2]), stoi(para[3]));
+					ha = sm_server_init(para[0].c_str(), stoi(para[1]), stoi(para[2]), stoi(para[3]), stod(para[4]));
 				sm_release(ha);
 			}
 			catch (const exception&)
